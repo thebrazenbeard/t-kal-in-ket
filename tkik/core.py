@@ -96,7 +96,8 @@ class Case:
             raise ProtocolError("challenge needs ID, target and question")
         if challenge.status != "OPEN" or challenge.defense is not None:
             raise ProtocolError("challenges must start unanswered")
-        if any(c.status == "OPEN" for c in self.challenges):
+        if any(c.status in ("OPEN", "PARTLY_ANSWERED", "UNRESOLVED")
+               for c in self.challenges):
             raise ProtocolError("only one unanswered challenge permitted")
         if any(c.identifier == challenge.identifier for c in self.challenges):
             raise ProtocolError("duplicate challenge ID")
@@ -109,16 +110,16 @@ class Case:
                           "SKIPPED", "WAIVED", "UNRESOLVED"):
             raise ProtocolError("invalid resolution")
         match = next((c for c in self.challenges if c.identifier == identifier), None)
-        if match is None or match.status != "OPEN":
-            raise ProtocolError("challenge absent or not open")
+        if match is None or match.status not in ("OPEN", "PARTLY_ANSWERED", "UNRESOLVED"):
+            raise ProtocolError("challenge absent or already finally resolved")
         if status in ("ANSWERED", "PARTLY_ANSWERED", "CONCEDED") and not defense:
             raise ProtocolError("record defense/concession")
         match.status, match.defense = status, defense
 
     def determine(self, verdict: str, rationale: str):
         self._mutable()
-        if verdict not in VERDICTS or not rationale.strip():
-            raise ProtocolError("valid disposition and rationale required")
+        if verdict not in ("SUSTAIN", "REFINE") or not rationale.strip():
+            raise ProtocolError("chair may only SUSTAIN or REFINE; proposer withdraws explicitly")
         if set(self.reviews) != set(LENSES):
             raise ProtocolError("three peer lenses required")
         if any(c.status in ("OPEN", "UNRESOLVED", "PARTLY_ANSWERED")
