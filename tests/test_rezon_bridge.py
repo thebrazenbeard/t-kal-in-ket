@@ -118,6 +118,8 @@ class BridgeTests(unittest.TestCase):
         with self.assertRaises(ProtocolError):
             c.waive_cross_examination("")
         c.waive_cross_examination("proposer explicitly declines attacks")
+        with self.assertRaises(ProtocolError):
+            c.ask(Challenge("late", "bridge", "scope", "Late attack?"))
         c.determine("REFINE", "Needs additional evidence")
         self.assertEqual(c.state, "CLOSED")
 
