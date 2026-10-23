@@ -81,6 +81,10 @@ class Case:
         if not all((self.case_id.strip(), self.hypothesis.strip(),
                     self.falsifier.strip(), self.proposer.strip())):
             raise ProtocolError("case_id, hypothesis, falsifier and proposer are mandatory")
+        if (self.state != "OPEN" or self.verdict is not None or
+                self.rationale is not None or self.evidence or
+                self.reviews or self.challenges):
+            raise ProtocolError("case starts open and unadjudicated; replay requires separate verified import")
 
     def _mutable(self):
         if self.state in ("CLOSED", "WITHDRAWN"):
@@ -126,8 +130,9 @@ class Case:
                     challenge.lens not in self.reviews or
                     challenge.respondent_lens not in self.reviews):
                 raise ProtocolError("cross-examination must target a different reviewed peer")
-        if any(c.status == "OPEN" for c in self.challenges):
-            raise ProtocolError("only one unanswered challenge permitted")
+        if any(c.status in ("OPEN", "PARTLY_ANSWERED", "UNRESOLVED")
+               for c in self.challenges):
+            raise ProtocolError("only one unresolved challenge permitted")
         if any(c.identifier == challenge.identifier for c in self.challenges):
             raise ProtocolError("duplicate challenge ID")
         self.challenges.append(challenge)
@@ -140,8 +145,8 @@ class Case:
                           "SKIPPED", "WAIVED", "UNRESOLVED"):
             raise ProtocolError("invalid resolution")
         match = next((c for c in self.challenges if c.identifier == identifier), None)
-        if match is None or match.status != "OPEN":
-            raise ProtocolError("challenge absent or not open")
+        if match is None or match.status not in ("OPEN", "PARTLY_ANSWERED", "UNRESOLVED"):
+            raise ProtocolError("challenge absent or finally resolved")
         if status in ("ANSWERED", "PARTLY_ANSWERED", "CONCEDED") and not defense:
             raise ProtocolError("record defense/concession")
         if match.respondent_lens is not None and status in ("ANSWERED", "PARTLY_ANSWERED", "CONCEDED"):
@@ -152,8 +157,8 @@ class Case:
 
     def determine(self, verdict: str, rationale: str):
         self._mutable()
-        if verdict not in VERDICTS or not rationale.strip():
-            raise ProtocolError("valid disposition and rationale required")
+        if verdict not in ("SUSTAIN", "REFINE") or not rationale.strip():
+            raise ProtocolError("chair may SUSTAIN or REFINE; proposer withdraws explicitly")
         if set(self.reviews) != set(LENSES):
             raise ProtocolError("three peer lenses required")
         if any(c.status in ("OPEN", "UNRESOLVED", "PARTLY_ANSWERED")

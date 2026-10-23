@@ -1,7 +1,7 @@
 # COORDINATION_TKIK — live Socratic engineering hearing (2026-10-23)
 
-**Subject:** `thebrazenbeard/t-kal-in-ket` main at opening `b62abc2447919cca6b29a52c4656db584b5471d8`.  
-**Issue:** https://github.com/thebrazenbeard/t-kal-in-ket/issues/2  
+**Subject:** `thebrazenbeard/t-kal-in-ket` main at opening `b62abc2447919cca6b29a52c4656db584b5471d8`.
+**Issue:** https://github.com/thebrazenbeard/t-kal-in-ket/issues/2
 **Decision scope:** whether the Python core can classify an unsupported three-label panel as a scoped `SUSTAIN` result. No model receipt or review text is itself an independent authentication.
 
 ## Recorded blind first round
