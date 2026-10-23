@@ -16,6 +16,20 @@ def panel():
     return c
 
 class LiveQuorumTests(unittest.TestCase):
+    def test_reviewed_hypothesis_cannot_be_replaced_before_verdict(self):
+        c = panel()
+        c.hypothesis = "A completely different, unreviewed claim"
+        with self.assertRaisesRegex(ProtocolError, "frozen proposition changed"):
+            c.determine("REFINE", "Original panel never examined this claim")
+
+    def test_reviewed_definitions_cannot_change_silently(self):
+        c = Case("definitions", "Claim", "Counterexample", "challenger",
+                 definitions={"learning": "heldout improvement"})
+        c.add_review(Review("purist_logic", "logic-reviewer", "f", "o"))
+        c.definitions["learning"] = "mere repetition"
+        with self.assertRaisesRegex(ProtocolError, "frozen proposition changed"):
+            c.add_review(Review("bridge", "bridge-reviewer", "f", "o"))
+
     def test_same_reviewer_cannot_occupy_three_lenses(self):
         c = Case("c", "hypothesis", "falsifier", "challenger")
         c.add_review(Review("purist_logic", "one-person", "f", "o"))
