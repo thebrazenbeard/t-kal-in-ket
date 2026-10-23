@@ -109,6 +109,17 @@ class BridgeTests(unittest.TestCase):
         c.resolve("next", "CONCEDED", "Sample too small")
         c.determine("REFINE", "Revise sampling plan")
 
+    def test_no_preloaded_case_state_or_forged_verdict(self):
+        for fields in (
+            {"state": "CLOSED", "verdict": "SUSTAIN", "rationale": "forged"},
+            {"verdict": "SUSTAIN", "rationale": "forged"},
+            {"reviews": {"purist_logic": Review("purist_logic", "x", "x", "x")}},
+            {"challenges": [Challenge("q", "bridge", "x", "x")]},
+        ):
+            with self.subTest(fields=fields):
+                with self.assertRaises(ProtocolError):
+                    Case("c", "H", "not H", "proposer", **fields)
+
     def test_chair_must_not_withdraw_for_proposer(self):
         c = Case("c", "H", "not H", "proposer")
         for lens in ("purist_logic", "pragmatism", "bridge"):
