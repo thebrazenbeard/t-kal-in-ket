@@ -23,7 +23,9 @@ At most one unanswered attack per case; show lens, precise target, question, sig
 
 ## Determination
 
-SUSTAIN: presently supported inside the specified scope; not proven universal. REFINE: material premises, scope, implementation or tests must change. WITHDRAW: claim withdrawn or no longer defensible in its stated form. Each disposition requires recorded reasons and salient dissent. Administrative gate: three distinct *lens* reviews and no outstanding cross-examination. The gate **does not** demonstrate three independent model executions; that stronger claim requires checked external receipts.
+Source implementation additionally requires for `SUSTAIN`: three distinct `reviewer_id` values, a frozen claim-and-definitions digest from the first review, and at least one attributed `ANSWERED` or `CONCEDED` directed peer challenge from and to each of the three lenses. A waiver, silence, partially answered question, or three copied reviewer identities cannot satisfy this gate. An explicit `defender_id` must match the registered respondent reviewer ID. `REFINE` remains a legitimate preliminary disposition without this complete exchange, and withdrawal does not require permission from the peers. If the participants cannot complete the cycle, the claim cannot be `SUSTAIN`ed on this source-level contract.
+
+SUSTAIN: presently supported inside the specified scope; not proven universal. REFINE: material premises, scope, implementation or tests must change. WITHDRAW: claim withdrawn or no longer defensible in its stated form. Each disposition requires recorded reasons and salient dissent. Administrative gate: three distinct *lens* reviews and no outstanding cross-examination. The gate **does not** demonstrate three independent model executions; that stronger claim requires checked external receipts. It also does not make mutable Python objects a tamper-proof ledger: a malicious in-process caller can alter public containers or private fields. The claim digest detects ordinary changes during admissible case methods; authenticated append-only custody belongs to a separate transport/persistence layer.
 
 ## Review integrity
 
