@@ -31,4 +31,6 @@ Each reviewer returns: `case_id`, frozen claim/version/hash, target, strongest f
 
 ## Next engineering boundary
 
+The current source-level `SUSTAIN` rules are necessary, not sufficient, for a live machine quorum. A remote peer exchange must bind claim digest/version, origin lens and reviewer, respondent lens and reviewer, a controller-issued challenge ID, the actual observed prompt and response hashes, and an invocation outcome. Public reviewer IDs and challenge responses are claims until the transport independently witnesses them. The CLI still runs a scripted `REFINE` example, never a proof of three model calls.
+
 Inspect actual Rezon interfaces and existing four-node transport authorization, then implement an adapter with end-to-end receipts and fault-injection tests (duplicate dispatch, timeouts, substituted model, inconsistent input hashes and unreachable host). Until that is done, **no live four-host Socratic dialogue is claimed**.
