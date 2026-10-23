@@ -62,6 +62,10 @@ class Case:
         if not all((self.case_id.strip(), self.hypothesis.strip(),
                     self.falsifier.strip(), self.proposer.strip())):
             raise ProtocolError("case_id, hypothesis, falsifier and proposer are mandatory")
+        if (self.state != "OPEN" or self.verdict is not None or
+                self.rationale is not None or self.evidence or
+                self.reviews or self.challenges):
+            raise ProtocolError("cases must begin open and unadjudicated; replay needs a separate verified path")
 
     def _mutable(self):
         if self.state in ("CLOSED", "WITHDRAWN"):
