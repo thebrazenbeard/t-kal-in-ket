@@ -4,6 +4,8 @@ An evidence record is not a verified fact. A review is not independent merely
 because its role differs. External execution receipts belong to integrations.
 """
 from dataclasses import dataclass, field
+import hashlib
+import json
 from typing import List, Dict, Optional
 
 LENSES = ("purist_logic", "pragmatism", "bridge")
@@ -60,6 +62,20 @@ class Case:
     state: str = "OPEN"
     verdict: Optional[str] = None
     rationale: Optional[str] = None
+    _frozen_claim_digest: Optional[str] = field(default=None, init=False, repr=False)
+
+    def _claim_digest(self):
+        """Bind the proposition and its definitions, not any mutable review state."""
+        body = {
+            "case_id": self.case_id,
+            "hypothesis": self.hypothesis,
+            "falsifier": self.falsifier,
+            "proposer": self.proposer,
+            "definitions": self.definitions,
+        }
+        payload = json.dumps(body, sort_keys=True, ensure_ascii=False,
+                             separators=(",", ":")).encode("utf-8")
+        return hashlib.sha256(payload).hexdigest()
 
     def __post_init__(self):
         if not all((self.case_id.strip(), self.hypothesis.strip(),
@@ -69,6 +85,8 @@ class Case:
     def _mutable(self):
         if self.state in ("CLOSED", "WITHDRAWN"):
             raise ProtocolError("case is terminal")
+        if self._frozen_claim_digest is not None and self._claim_digest() != self._frozen_claim_digest:
+            raise ProtocolError("frozen proposition changed; create a new case version")
 
     def add_evidence(self, item: Evidence):
         self._mutable()
@@ -90,6 +108,8 @@ class Case:
             raise ProtocolError("lens already reviewed; revisions require a new case version")
         if any(existing.reviewer_id == review.reviewer_id for existing in self.reviews.values()):
             raise ProtocolError("reviewer identity already occupies another lens")
+        if self._frozen_claim_digest is None:
+            self._frozen_claim_digest = self._claim_digest()
         self.reviews[review.lens] = review
 
     def ask(self, challenge: Challenge):
