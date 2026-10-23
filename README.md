@@ -15,15 +15,23 @@ Python 3.10+ with no third-party dependencies:
 ```sh
 python -m unittest discover -s tests -v
 python -m tkik.cli
+python -m tkik.inspect_rezon /path/to/rezon-export.json --require-reviewed
+# Or inspect an exported JSON snapshot on standard input:
+# python -m tkik.inspect_rezon - < snapshot.json
 ```
 
-The CLI is a **scripted demonstration only**. No actual Rezon inference, Lappy/VN1/VN2 execution, scientific learning or autonomous effect is claimed.
+The inspector **only reads exported Rezon Collective V1 JSON**. It checks the structural digest, answer/review coverage and synthesis freshness. It emits a bounded JSON report without printing model answers and exits 2 for malformed/inconsistent input or 3 when `--require-reviewed` is unmet. An exit 0 is **not** independent host authentication, authority to `SUSTAIN`, or proof of scientific truth.
+
+```text
+
+
+The original `tkik.cli` is a **scripted demonstration only**. No actual Rezon inference, Lappy/VN1/VN2 execution, scientific learning or autonomous effect is claimed.
 
 ## Contents
 
 - [Scientific and adversarial protocol](docs/PROTOCOL.md): evidence classes, three peers, advocate, one-question defense flow, dissent and closure gates.
 - [Research and source distinctions](docs/RESEARCH.md): fictional procedure versus original engineering extensions.
-- [Rezon Collective read-only bridge](docs/REZON_COLLECTIVE_BRIDGE.md): inspect exported JSON with canonical digest, peer-target, completeness and synthesis-staleness checks. No live host authentication. [Four-source transport proposal](docs/REZON_INTEGRATION.md) remains uninstalled.
+- [Rezon Collective read-only bridge](docs/REZON_COLLECTIVE_BRIDGE.md): inspect exported JSON with canonical digest, peer-target, completeness and synthesis-staleness checks, either programmatically or using `python -m tkik.inspect_rezon`. No live host authentication. [Four-source transport proposal](docs/REZON_INTEGRATION.md) remains uninstalled.
 - [Core case state machine](tkik/core.py): fail-closed determination and withdrawal.
 - [Protocol regression tests](tests/test_core.py) and [CI](.github/workflows/tests.yml).
 
