@@ -42,6 +42,9 @@ class Challenge:
     question: str
     status: str = "OPEN"
     defense: Optional[str] = None
+    # Optional for older cases; required for an attributed SUSTAIN dialogue.
+    respondent_lens: Optional[str] = None
+    defender_id: Optional[str] = None
 
 
 @dataclass
@@ -85,6 +88,8 @@ class Case:
             raise ProtocolError("reviewer identity, finding and objection required")
         if review.lens in self.reviews:
             raise ProtocolError("lens already reviewed; revisions require a new case version")
+        if any(existing.reviewer_id == review.reviewer_id for existing in self.reviews.values()):
+            raise ProtocolError("reviewer identity already occupies another lens")
         self.reviews[review.lens] = review
 
     def ask(self, challenge: Challenge):
@@ -94,8 +99,13 @@ class Case:
         if not all((challenge.identifier.strip(), challenge.target.strip(),
                     challenge.question.strip())):
             raise ProtocolError("challenge needs ID, target and question")
-        if challenge.status != "OPEN" or challenge.defense is not None:
+        if challenge.status != "OPEN" or challenge.defense is not None or challenge.defender_id is not None:
             raise ProtocolError("challenges must start unanswered")
+        if challenge.respondent_lens is not None:
+            if (challenge.lens == challenge.respondent_lens or
+                    challenge.lens not in self.reviews or
+                    challenge.respondent_lens not in self.reviews):
+                raise ProtocolError("cross-examination must target a different reviewed peer")
         if any(c.status == "OPEN" for c in self.challenges):
             raise ProtocolError("only one unanswered challenge permitted")
         if any(c.identifier == challenge.identifier for c in self.challenges):
@@ -103,7 +113,8 @@ class Case:
         self.challenges.append(challenge)
         self.state = "CROSS_EXAMINATION"
 
-    def resolve(self, identifier: str, status: str, defense: Optional[str] = None):
+    def resolve(self, identifier: str, status: str, defense: Optional[str] = None,
+                *, defender_id: Optional[str] = None):
         self._mutable()
         if status not in ("ANSWERED", "PARTLY_ANSWERED", "CONCEDED",
                           "SKIPPED", "WAIVED", "UNRESOLVED"):
@@ -113,7 +124,11 @@ class Case:
             raise ProtocolError("challenge absent or not open")
         if status in ("ANSWERED", "PARTLY_ANSWERED", "CONCEDED") and not defense:
             raise ProtocolError("record defense/concession")
-        match.status, match.defense = status, defense
+        if match.respondent_lens is not None and status in ("ANSWERED", "PARTLY_ANSWERED", "CONCEDED"):
+            respondent = self.reviews.get(match.respondent_lens)
+            if respondent is None or defender_id != respondent.reviewer_id:
+                raise ProtocolError("target reviewer identity required for peer defense")
+        match.status, match.defense, match.defender_id = status, defense, defender_id
 
     def determine(self, verdict: str, rationale: str):
         self._mutable()
@@ -124,6 +139,16 @@ class Case:
         if any(c.status in ("OPEN", "UNRESOLVED", "PARTLY_ANSWERED")
                for c in self.challenges):
             raise ProtocolError("unresolved cross-examination")
+        if verdict == "SUSTAIN":
+            answered = [
+                c for c in self.challenges
+                if c.respondent_lens in LENSES
+                and c.status in ("ANSWERED", "CONCEDED")
+                and c.defender_id == self.reviews[c.respondent_lens].reviewer_id
+            ]
+            if ({c.lens for c in answered} != set(LENSES)
+                    or {c.respondent_lens for c in answered} != set(LENSES)):
+                raise ProtocolError("SUSTAIN requires peer cross-examination across all three lenses")
         self.verdict, self.rationale, self.state = verdict, rationale, "CLOSED"
 
     def withdraw(self, reason: str):
