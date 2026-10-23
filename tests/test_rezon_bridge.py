@@ -109,10 +109,29 @@ class BridgeTests(unittest.TestCase):
         c.resolve("next", "CONCEDED", "Sample too small")
         c.determine("REFINE", "Revise sampling plan")
 
+    def test_no_silent_cross_examination_bypass(self):
+        c = Case("c", "H", "not H", "proposer")
+        for lens in ("purist_logic", "pragmatism", "bridge"):
+            c.add_review(Review(lens, lens, "finding", "objection"))
+        with self.assertRaises(ProtocolError):
+            c.determine("SUSTAIN", "all three reviewed")
+        with self.assertRaises(ProtocolError):
+            c.waive_cross_examination("")
+        c.waive_cross_examination("proposer explicitly declines attacks")
+        c.determine("REFINE", "Needs additional evidence")
+        self.assertEqual(c.state, "CLOSED")
+
+    def test_cannot_waive_after_attack_begins(self):
+        c = Case("c", "H", "not H", "proposer")
+        c.ask(Challenge("q", "bridge", "scope", "What scope?"))
+        with self.assertRaises(ProtocolError):
+            c.waive_cross_examination("retroactive waiver")
+
     def test_no_preloaded_case_state_or_forged_verdict(self):
         for fields in (
             {"state": "CLOSED", "verdict": "SUSTAIN", "rationale": "forged"},
             {"verdict": "SUSTAIN", "rationale": "forged"},
+            {"cross_exam_waiver": "fabricated waiver"},
             {"reviews": {"purist_logic": Review("purist_logic", "x", "x", "x")}},
             {"challenges": [Challenge("q", "bridge", "x", "x")]},
         ):
