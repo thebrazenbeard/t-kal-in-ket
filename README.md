@@ -23,11 +23,15 @@ The CLI is a **scripted demonstration only**. No actual Rezon inference, Lappy/V
 
 - [Scientific and adversarial protocol](docs/PROTOCOL.md): evidence classes, three peers, advocate, one-question defense flow, dissent and closure gates.
 - [Research and source distinctions](docs/RESEARCH.md): fictional procedure versus original engineering extensions.
-- [Rezon Collective snapshot bridge](docs/REZON_COLLECTIVE_BRIDGE.md): executable digest/peer-target validation of exported native Rezon JSON; read-only and unauthenticated. [Transport contract](docs/REZON_INTEGRATION.md) remains a proposal.
+- [Rezon Collective read-only bridge](docs/REZON_COLLECTIVE_BRIDGE.md): inspect exported JSON with canonical digest, peer-target, completeness and synthesis-staleness checks. No live host authentication. [Four-source transport proposal](docs/REZON_INTEGRATION.md) remains uninstalled.
 - [Core case state machine](tkik/core.py): fail-closed determination and withdrawal.
 - [Protocol regression tests](tests/test_core.py) and [CI](.github/workflows/tests.yml).
 
 ## Determination
+
+The currently implemented `SUSTAIN` gate requires three distinct reviewer identities and a directed, answered/conceded peer-exchange cycle touching every peer as questioner and respondent. `REFINE` and human withdrawal remain available without fabricating an exchange. A different reviewer ID is **not** independent model/host attestation, and written defenses alone are not proof of actual inference. Once the first review is accepted, the proposition and definitions are bound by a digest; material changes require a new case version.
+
+Partial and unresolved defenses can be continued; a new question cannot replace them until resolution. **Only the proposer may withdraw.**
 
 A case may be **SUSTAINED**, **REFINED** or **WITHDRAWN** on documented reasons. SUSTAIN does not mean universal proof. Unresolved or partially answered challenges block normal closure; silent absence never means concession. External reviews need real attributable invocation records before they count as independent sources.
 
@@ -35,4 +39,4 @@ A case may be **SUSTAINED**, **REFINED** or **WITHDRAWN** on documented reasons.
 
 Never put private deliberations, identifying case material, credentials or secrets in this public repo. Verdicts do not authorize merges, deployments, model-training or other protected effects. The independent four-host adapter must be built against current Rezon source and verified with live receipts before anyone describes this as a running quorum.
 
-**Status:** source foundation with a tested, read-only Rezon snapshot bridge; neither an authenticated live mesh nor a production-qualified inference system. No software license has yet been selected.
+**Status:** tested in-memory peer-examination gate plus a read-only Rezon Collective V1 snapshot verifier (tested against a persisted native four-source episode). No authenticated live remote transport, cryptographic reviewer custody, model self-learning or production qualification. No software license selected.

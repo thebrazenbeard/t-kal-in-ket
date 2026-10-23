@@ -114,26 +114,23 @@ class BridgeTests(unittest.TestCase):
         for lens in ("purist_logic", "pragmatism", "bridge"):
             c.add_review(Review(lens, lens, "finding", "objection"))
         with self.assertRaises(ProtocolError):
-            c.determine("SUSTAIN", "all three reviewed")
-        with self.assertRaises(ProtocolError):
-            c.waive_cross_examination("")
-        c.waive_cross_examination("proposer explicitly declines attacks")
-        with self.assertRaises(ProtocolError):
-            c.ask(Challenge("late", "bridge", "scope", "Late attack?"))
-        c.determine("REFINE", "Needs additional evidence")
+            c.determine("SUSTAIN", "all three reviewed but no exchange")
+        c.determine("REFINE", "More tests needed")
         self.assertEqual(c.state, "CLOSED")
 
-    def test_cannot_waive_after_attack_begins(self):
+    def test_partial_or_unresolved_must_be_revisited_before_next_attack(self):
         c = Case("c", "H", "not H", "proposer")
-        c.ask(Challenge("q", "bridge", "scope", "What scope?"))
+        c.ask(Challenge("first", "bridge", "scope", "Which scope?"))
+        c.resolve("first", "UNRESOLVED")
         with self.assertRaises(ProtocolError):
-            c.waive_cross_examination("retroactive waiver")
+            c.ask(Challenge("second", "bridge", "scope", "Next?"))
+        c.resolve("first", "CONCEDED", "No usable scope supplied")
+        c.ask(Challenge("second", "bridge", "scope", "Next?"))
 
     def test_no_preloaded_case_state_or_forged_verdict(self):
         for fields in (
             {"state": "CLOSED", "verdict": "SUSTAIN", "rationale": "forged"},
             {"verdict": "SUSTAIN", "rationale": "forged"},
-            {"cross_exam_waiver": "fabricated waiver"},
             {"reviews": {"purist_logic": Review("purist_logic", "x", "x", "x")}},
             {"challenges": [Challenge("q", "bridge", "x", "x")]},
         ):
