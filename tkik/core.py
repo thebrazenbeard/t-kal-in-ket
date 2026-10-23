@@ -95,6 +95,8 @@ class Case:
 
     def ask(self, challenge: Challenge):
         self._mutable()
+        if self.cross_exam_waiver is not None:
+            raise ProtocolError("cannot reopen a waived examination in the same case")
         if challenge.lens not in LENSES:
             raise ProtocolError("unknown challenge lens")
         if not all((challenge.identifier.strip(), challenge.target.strip(),
