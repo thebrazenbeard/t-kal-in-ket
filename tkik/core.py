@@ -57,6 +57,7 @@ class Case:
     state: str = "OPEN"
     verdict: Optional[str] = None
     rationale: Optional[str] = None
+    cross_exam_waiver: Optional[str] = None
 
     def __post_init__(self):
         if not all((self.case_id.strip(), self.hypothesis.strip(),
@@ -64,7 +65,8 @@ class Case:
             raise ProtocolError("case_id, hypothesis, falsifier and proposer are mandatory")
         if (self.state != "OPEN" or self.verdict is not None or
                 self.rationale is not None or self.evidence or
-                self.reviews or self.challenges):
+                self.reviews or self.challenges or
+                self.cross_exam_waiver is not None):
             raise ProtocolError("cases must begin open and unadjudicated; replay needs a separate verified path")
 
     def _mutable(self):
@@ -120,12 +122,24 @@ class Case:
             raise ProtocolError("record defense/concession")
         match.status, match.defense = status, defense
 
+    def waive_cross_examination(self, reason: str):
+        """Record an explicit no-questions waiver before the examination begins.
+
+        Calling applications must authenticate who gave the waiver.
+        """
+        self._mutable()
+        if self.challenges or self.state != "OPEN" or not isinstance(reason, str) or not reason.strip():
+            raise ProtocolError("waiver must be explicit, reasoned and before any attack")
+        self.cross_exam_waiver = reason
+
     def determine(self, verdict: str, rationale: str):
         self._mutable()
         if verdict not in ("SUSTAIN", "REFINE") or not rationale.strip():
             raise ProtocolError("chair may only SUSTAIN or REFINE; proposer withdraws explicitly")
         if set(self.reviews) != set(LENSES):
             raise ProtocolError("three peer lenses required")
+        if not self.challenges and self.cross_exam_waiver is None:
+            raise ProtocolError("cross-examination required unless explicitly waived")
         if any(c.status in ("OPEN", "UNRESOLVED", "PARTLY_ANSWERED")
                for c in self.challenges):
             raise ProtocolError("unresolved cross-examination")
