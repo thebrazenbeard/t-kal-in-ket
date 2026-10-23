@@ -23,7 +23,7 @@ The CLI is a **scripted demonstration only**. No actual Rezon inference, Lappy/V
 
 - [Scientific and adversarial protocol](docs/PROTOCOL.md): evidence classes, three peers, advocate, one-question defense flow, dissent and closure gates.
 - [Research and source distinctions](docs/RESEARCH.md): fictional procedure versus original engineering extensions.
-- [Rezon four-source integration contract](docs/REZON_INTEGRATION.md): proposed transport, durable receipts and independence requirements; not yet connected.
+- [Rezon Collective snapshot bridge](docs/REZON_COLLECTIVE_BRIDGE.md): executable digest/peer-target validation of exported native Rezon JSON; read-only and unauthenticated. [Transport contract](docs/REZON_INTEGRATION.md) remains a proposal.
 - [Core case state machine](tkik/core.py): fail-closed determination and withdrawal.
 - [Protocol regression tests](tests/test_core.py) and [CI](.github/workflows/tests.yml).
 
@@ -35,4 +35,4 @@ A case may be **SUSTAINED**, **REFINED** or **WITHDRAWN** on documented reasons.
 
 Never put private deliberations, identifying case material, credentials or secrets in this public repo. Verdicts do not authorize merges, deployments, model-training or other protected effects. The independent four-host adapter must be built against current Rezon source and verified with live receipts before anyone describes this as a running quorum.
 
-**Status:** initial review-branch foundation, not production qualified. No software license has yet been selected.
+**Status:** source foundation with a tested, read-only Rezon snapshot bridge; neither an authenticated live mesh nor a production-qualified inference system. No software license has yet been selected.
