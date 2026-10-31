@@ -4,6 +4,10 @@ A practical, unofficial peer-examination protocol inspired by T’Kal-in-ket in 
 
 The fictional process places a challenger before three peers with an advocate and permits withdrawal. The software's evidence records, executable gates, and remote model receipts are **engineering additions**, not purported canon.
 
+**Reusable components:** the dependency-free `tkik.core` case/review/challenge state machine, a read-only `tkik.inspect_rezon` exported-snapshot inspector, protocol documentation, and regression tests. The tools can evaluate the *structure and completeness* of supplied review evidence; they cannot summon independent reviewers, authenticate a model provider, or establish that a claim is true.
+
+**Reuse rights:** no project-wide software license has been selected. The public repository is available for inspection; obtain explicit permission before assuming redistribution or commercial reuse rights.
+
 ## Four roles, one falsifiable claim
 
 Three peer lenses—**Purist Logic**, **Pragmatism**, and **Bridge**—challenge a frozen hypothesis. **Chair** protects the record, tracks dissent and blocks unsupported determination. The challenger and advocate have opportunity to clarify, defend, concede and withdraw. A role label alone is not proof that a separate model or host ran.
@@ -22,7 +26,7 @@ python -m tkik.inspect_rezon /path/to/rezon-export.json --require-reviewed
 
 The inspector **only reads exported Rezon Collective V1 JSON**. It checks the structural digest, answer/review coverage and synthesis freshness. It emits a bounded JSON report without printing model answers and exits 2 for malformed/inconsistent input or 3 when `--require-reviewed` is unmet. An exit 0 is **not** independent host authentication, authority to `SUSTAIN`, or proof of scientific truth.
 
-The original `tkik.cli` is a **scripted demonstration only**. No actual Rezon inference, Lappy/VN1/VN2 execution, scientific learning or autonomous effect is claimed.
+The original `tkik.cli` is a **scripted demonstration only**. No actual Rezon inference, independently authenticated remote-host execution, scientific learning, or autonomous effect is claimed.
 
 ## Contents
 
