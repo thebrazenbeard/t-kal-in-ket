@@ -4,9 +4,13 @@ A practical, unofficial peer-examination protocol inspired by T’Kal-in-ket in 
 
 The fictional process places a challenger before three peers with an advocate and permits withdrawal. The software's evidence records, executable gates, and remote model receipts are **engineering additions**, not purported canon.
 
+**Reusable components:** the dependency-free `tkik.core` case/review/challenge state machine, a read-only `tkik.inspect_rezon` exported-snapshot inspector, protocol documentation, and regression tests. The tools can evaluate the *structure and completeness* of supplied review evidence; they cannot summon independent reviewers, authenticate a model provider, or establish that a claim is true.
+
+**Reuse rights:** no project-wide software license has been selected. The public repository is available for inspection; obtain explicit permission before assuming redistribution or commercial reuse rights.
+
 ## Four roles, one falsifiable claim
 
-Three peer lenses—**Purist Logic**, **Pragmatism**, and **Bridge**—challenge a frozen hypothesis. **Chair** protects the record, tracks dissent and blocks unsupported determination. The challenger and advocate have opportunity to clarify, defend, concede and withdraw. A role label alone is not proof that a separate model or host ran.
+Three peer lenses—**Purist Logic**, **Pragmatism**, and **Bridge**—challenge a frozen hypothesis. Under the protocol, **Chair** protects the record, tracks dissent and blocks unsupported determination. The challenger and advocate can clarify, defend, concede and withdraw. The in-memory code does not authenticate a chair, proposer, model, or host; role labels alone are caller-supplied, not independently attested identities.
 
 ## Quick start
 
@@ -22,7 +26,7 @@ python -m tkik.inspect_rezon /path/to/rezon-export.json --require-reviewed
 
 The inspector **only reads exported Rezon Collective V1 JSON**. It checks the structural digest, answer/review coverage and synthesis freshness. It emits a bounded JSON report without printing model answers and exits 2 for malformed/inconsistent input or 3 when `--require-reviewed` is unmet. An exit 0 is **not** independent host authentication, authority to `SUSTAIN`, or proof of scientific truth.
 
-The original `tkik.cli` is a **scripted demonstration only**. No actual Rezon inference, Lappy/VN1/VN2 execution, scientific learning or autonomous effect is claimed.
+The original `tkik.cli` is a **scripted demonstration only**. No actual Rezon inference, independently authenticated remote-host execution, scientific learning, or autonomous effect is claimed.
 
 ## Contents
 
@@ -36,7 +40,7 @@ The original `tkik.cli` is a **scripted demonstration only**. No actual Rezon in
 
 The currently implemented `SUSTAIN` gate requires three distinct reviewer identities and a directed, answered/conceded peer-exchange cycle touching every peer as questioner and respondent. `REFINE` and human withdrawal remain available without fabricating an exchange. A different reviewer ID is **not** independent model/host attestation, and written defenses alone are not proof of actual inference. Once the first review is accepted, the proposition and definitions are bound by a digest; material changes require a new case version.
 
-Partial and unresolved defenses can be continued; a new question cannot replace them until resolution. **Only the proposer may withdraw.**
+Partial and unresolved defenses can be continued; a new question cannot replace them until resolution. **The protocol reserves withdrawal for the proposer**, but `Case.withdraw(reason)` does not authenticate the caller; an integrating host must enforce that rule before invoking it.
 
 A case may be **SUSTAINED**, **REFINED** or **WITHDRAWN** on documented reasons. SUSTAIN does not mean universal proof. Unresolved or partially answered challenges block normal closure; silent absence never means concession. External reviews need real attributable invocation records before they count as independent sources.
 
@@ -44,4 +48,4 @@ A case may be **SUSTAINED**, **REFINED** or **WITHDRAWN** on documented reasons.
 
 Never put private deliberations, identifying case material, credentials or secrets in this public repo. Verdicts do not authorize merges, deployments, model-training or other protected effects. The independent four-host adapter must be built against current Rezon source and verified with live receipts before anyone describes this as a running quorum.
 
-**Status:** tested in-memory peer-examination gate plus a read-only Rezon Collective V1 snapshot verifier (tested against a persisted native four-source episode). No authenticated live remote transport, cryptographic reviewer custody, model self-learning or production qualification. No software license selected.
+**Status:** tested in-memory peer-examination gate plus a read-only Rezon Collective V1 snapshot verifier, exercised with unit and CLI fixtures. Those tests do not establish an actual independently conducted four-source hearing. No authenticated live remote transport, cryptographic reviewer custody, model self-learning or production qualification. No software license selected.
