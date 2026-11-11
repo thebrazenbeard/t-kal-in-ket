@@ -45,3 +45,16 @@ A case may be **SUSTAINED**, **REFINED** or **WITHDRAWN** on documented reasons.
 Never put private deliberations, identifying case material, credentials or secrets in this public repo. Verdicts do not authorize merges, deployments, model-training or other protected effects. The independent four-host adapter must be built against current Rezon source and verified with live receipts before anyone describes this as a running quorum.
 
 **Status:** tested in-memory peer-examination gate plus a read-only Rezon Collective V1 snapshot verifier (tested against a persisted native four-source episode). No authenticated live remote transport, cryptographic reviewer custody, model self-learning or production qualification. No software license selected.
+
+## Editor startup source guard
+
+The checked-in VS Code task list is empty and automatic workspace tasks are
+disabled. The read-only command `python -m security.check_editor_source_safety` rejects
+startup-task directives in checked-in editor/workspace configurations and checks
+the 15 retained font assets by SHA-256 (normalizing SVG line endings only).
+The unrelated `fa-solid-600.ttf` JavaScript disguised as a font was removed;
+it was not a T'Kal-in-ket Python dependency.
+
+CI runs this guard and inert adversarial fixtures alongside protocol tests.
+These are **source checks**, not proof an editor, extension, installed host or
+deployment is safe. Legitimate font updates require explicit pin review.
