@@ -50,3 +50,34 @@ class AdvocateTests(unittest.TestCase):
                 verify_weights(folder)
             with patch("tkik.advocate.WEIGHTS_SHA256", hashlib.sha256(b"synthetic").hexdigest()):
                 verify_weights(folder)
+
+    def test_no_inference_attestation_or_abstained_label(self):
+        result = advisory("A", "B", lambda a, b: (1, 1, 1))
+        self.assertIsNone(result.get("label"))
+        self.assertIs(result.get("execution_attested"), False)
+        self.assertNotIn("model", result)
+
+    def test_boolean_and_unbounded_scores_rejected(self):
+        with self.assertRaises(ValueError):
+            advisory("A", "B", lambda a, b: (True, 0, 0))
+        read = []
+        def scores(a, b):
+            for i in range(64):
+                read.append(i)
+                yield 1
+        with self.assertRaises(ValueError):
+            advisory("A", "B", scores)
+        self.assertEqual(len(read), 4)
+
+    def test_invalid_frames_rejected_before_loading(self):
+        import io
+        from tkik.advocate import main
+        valid = '{"premise":"A","claim":"B"}'
+        frames = ('{"premise":"A","premise":"B","claim":"C"}',
+                  valid.ljust(32769) + 'junk')
+        for frame in frames:
+            with self.subTest(), patch("sys.stdin", io.StringIO(frame)), patch(
+                "sys.argv", ["advocate", "--model-dir", ".", "--worker-hostname", "worker"]
+            ), patch("tkik.advocate.local_scorer", return_value=lambda a, b: (1, 0, 0)) as loader, patch("sys.stdout", io.StringIO()), patch("sys.stderr", io.StringIO()):
+                self.assertEqual(main(), 2)
+                loader.assert_not_called()
