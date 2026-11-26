@@ -10,7 +10,7 @@ Three peer lenses—**Purist Logic**, **Pragmatism**, and **Bridge**—challenge
 
 ## Live collective mode
 
-The protocol also supports a facilitated sequential quorum with a variable number of participants. Each examiner must make a substantive, evidence-bearing challenge or improvement rather than passively agree. One proposer, one current proposition, one speaking floor and a genuine defense opportunity are preserved; simplify, retain or withdraw when justified. Existing portfolio components may be examined for declining usefulness, consolidation or localization against actual consumer evidence. See [live sequential collective examination](docs/PROTOCOL.md#live-sequential-collective-examination-facilitated-mode). This is a documented human/agent facilitation method, not an installed transport or a new executable gate.
+The protocol also supports a facilitated sequential quorum with a variable number of participants. Each examiner must make a substantive, evidence-bearing challenge or improvement rather than passively agree. One proposer, one current proposition, one speaking floor and a genuine defense opportunity are preserved; simplify, retain or withdraw when justified. Existing portfolio components may be examined for declining usefulness, consolidation or localization against actual consumer evidence. See [live sequential collective examination](docs/PROTOCOL.md#live-sequential-collective-examination-facilitated-mode). The optional in-memory `tkik.live.LiveQuorum` gate enforces ordered examination, attributed defense opportunities and structured substantive contributions; it rejects bare agreement and exact repeated examinations. It does not verify semantic novelty, evidence truth, participant identity or live transport.
 
 ## Quick start
 
