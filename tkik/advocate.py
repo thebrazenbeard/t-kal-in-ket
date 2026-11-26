@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+from itertools import islice
 import json
 import math
 from pathlib import Path
@@ -20,8 +21,8 @@ def advisory(premise, claim, scorer):
     if any(not isinstance(s, str) or not s.strip() or len(s) > 4000
            for s in (premise, claim)):
         raise ValueError("nonempty premise and claim, each at most 4000 characters")
-    logits = tuple(scorer(premise, claim))
-    if len(logits) != 3 or any(not math.isfinite(x) for x in logits):
+    logits = tuple(islice(scorer(premise, claim), 4))
+    if len(logits) != 3 or any(type(x) not in (int, float) or not math.isfinite(x) for x in logits):
         raise ValueError("expected three finite NLI logits")
     high = max(logits)
     exp = [math.exp(x - high) for x in logits]
@@ -35,9 +36,10 @@ def advisory(premise, claim, scorer):
                   "entailment": "TEXTUAL_SUPPORT_ONLY",
                   "neutral": "INSUFFICIENT_TEXTUAL_SUPPORT"}[label]
     digest = lambda s: hashlib.sha256(s.encode("utf-8")).hexdigest()
-    return {"model": MODEL_ID, "revision": MODEL_REVISION,
+    return {"configured_model": MODEL_ID, "configured_revision": MODEL_REVISION,
+            "execution_attested": False,
             "premise_sha256": digest(premise), "claim_sha256": digest(claim),
-            "label": label, "uncalibrated_scores": dict(zip(LABELS, scores)),
+            "label": None if action == "ABSTAIN" else label, "uncalibrated_scores": dict(zip(LABELS, scores)),
             "advice": action, "authority": "NONE", "effect": False}
 
 
@@ -82,13 +84,25 @@ def local_scorer(model_dir, worker_hostname):
     return score
 
 
+def _unique_pairs(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("duplicate input key")
+        result[key] = value
+    return result
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--model-dir", type=Path, required=True)
     parser.add_argument("--worker-hostname", required=True)
     args = parser.parse_args()
     try:
-        payload = json.loads(sys.stdin.read(32769))
+        frame = sys.stdin.read(32769)
+        if len(frame) > 32768:
+            raise ValueError("input frame exceeds limit")
+        payload = json.loads(frame, object_pairs_hook=_unique_pairs)
         if not isinstance(payload, dict) or set(payload) != {"premise", "claim"}:
             raise ValueError("expected premise and claim")
         for key in ("premise", "claim"):
