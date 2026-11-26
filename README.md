@@ -8,6 +8,10 @@ The fictional process places a challenger before three peers with an advocate an
 
 Three peer lenses—**Purist Logic**, **Pragmatism**, and **Bridge**—challenge a frozen hypothesis. **Chair** protects the record, tracks dissent and blocks unsupported determination. The challenger and advocate have opportunity to clarify, defend, concede and withdraw. A role label alone is not proof that a separate model or host ran.
 
+## Live collective mode
+
+The protocol also supports a facilitated sequential quorum with a variable number of participants. Each examiner must make a substantive, evidence-bearing challenge or improvement rather than passively agree. One proposer, one current proposition, one speaking floor and a genuine defense opportunity are preserved; simplify, retain or withdraw when justified. Existing portfolio components may be examined for declining usefulness, consolidation or localization against actual consumer evidence. See [live sequential collective examination](docs/PROTOCOL.md#live-sequential-collective-examination-facilitated-mode). This is a documented human/agent facilitation method, not an installed transport or a new executable gate.
+
 ## Quick start
 
 Python 3.10+ with no third-party dependencies:
@@ -42,6 +46,6 @@ A case may be **SUSTAINED**, **REFINED** or **WITHDRAWN** on documented reasons.
 
 ## Boundaries
 
-Never put private deliberations, identifying case material, credentials or secrets in this public repo. Verdicts do not authorize merges, deployments, model-training or other protected effects. The independent four-host adapter must be built against current Rezon source and verified with live receipts before anyone describes this as a running quorum.
+Never put private deliberations, identifying case material, credentials or secrets in this public repo. Verdicts do not authorize merges, deployments, model-training or other protected effects. The independent four-host adapter must be built against current Rezon source and verified with live receipts before anyone describes that adapter as an authenticated running quorum. Externally facilitated live proceedings are distinct from the adapter.
 
 **Status:** tested in-memory peer-examination gate plus a read-only Rezon Collective V1 snapshot verifier (tested against a persisted native four-source episode). No authenticated live remote transport, cryptographic reviewer custody, model self-learning or production qualification. No software license selected.
