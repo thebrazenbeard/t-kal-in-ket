@@ -81,3 +81,39 @@ class AdvocateTests(unittest.TestCase):
             ), patch("tkik.advocate.local_scorer", return_value=lambda a, b: (1, 0, 0)) as loader, patch("sys.stdout", io.StringIO()), patch("sys.stderr", io.StringIO()):
                 self.assertEqual(main(), 2)
                 loader.assert_not_called()
+
+    def test_loader_rejects_unverified_snapshot_before_import(self):
+        import builtins
+        import tkik.advocate as advocate
+        names = ("config.json", "added_tokens.json", "special_tokens_map.json",
+                 "spm.model", "tokenizer.json", "tokenizer_config.json")
+        values = {name: name.encode() for name in names}
+        values["model.safetensors"] = b"weights"
+        digests = {name: hashlib.sha256(values[name]).hexdigest() for name in names}
+        original_import = builtins.__import__
+        def stop_at_loader(name, *args, **kwargs):
+            if name == "torch":
+                raise AssertionError("reached model loader")
+            return original_import(name, *args, **kwargs)
+        for mode in ("missing", "tampered", "extra", "valid"):
+            with self.subTest(mode=mode), tempfile.TemporaryDirectory() as folder:
+                root = Path(folder)
+                for name, value in values.items():
+                    (root / name).write_bytes(value)
+                if mode == "missing":
+                    (root / "config.json").unlink()
+                elif mode == "tampered":
+                    (root / "tokenizer.json").write_bytes(b"changed")
+                elif mode == "extra":
+                    (root / "adapter_config.json").write_bytes(b"{}")
+                else:
+                    (root / ".cache").mkdir()
+                with patch.object(advocate, "SNAPSHOT_SHA256", digests, create=True), patch.object(
+                    advocate, "WEIGHTS_SHA256", hashlib.sha256(values["model.safetensors"]).hexdigest()
+                ), patch.object(advocate, "require_worker"), patch("builtins.__import__", side_effect=stop_at_loader):
+                    if mode == "valid":
+                        with self.assertRaisesRegex(AssertionError, "reached model loader"):
+                            advocate.local_scorer(root, "worker")
+                    else:
+                        with self.assertRaisesRegex(ValueError, "snapshot"):
+                            advocate.local_scorer(root, "worker")
