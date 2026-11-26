@@ -14,8 +14,11 @@ duplicated in Git. Preserve upstream license and attribution in any distribution
 On a separately designated inference worker only, provision compatible CPU
 PyTorch and Transformers, and retrieve the exact revision's safetensors,
 configuration and tokenizer files from the upstream repository. Verify the
-snapshot provenance and dependency versions before use; only the weight digest
-is enforced by this prototype. No model downloads or model imports happen at
+snapshot provenance and dependency versions before use. The loader verifies the
+exact seven-file snapshot inventory and all seven SHA-256 digests before model
+imports (local download metadata directory `.cache` is ignored). This is a
+byte-integrity check, not an authenticated worker receipt or protection from
+concurrent local modification. Use an isolated, stable read-only model directory. No model downloads or model imports happen at
 module import. No automatic network calls, training, serving or startup tasks
 are included. No private deliberations are sent to the Hub.
 
@@ -38,5 +41,10 @@ and the ordinary advocate on novel synthetic cases, including false accusations,
 missing evidence, scope changes and order/loyalty perturbations. Evaluate
 incremental detection, false positives, abstention and resource cost. Keep
 existing decision procedures and real defense opportunities. Retain or remove
-the experiment according to evidence. Initial tests exercise the local boundary
-with synthetic scores, not actual model effectiveness or worker capacity.
+the experiment according to evidence. Boundary tests use synthetic scores and inert snapshot files; they do not
+establish model effectiveness or worker capacity. One observed CPU setup used
+Python 3.13.15, torch 2.8.0+cpu, transformers 4.57.1, tokenizers 0.22.2,
+safetensors 0.8.0, sentencepiece 0.2.3 and huggingface-hub 0.36.2; this is an
+observed configuration, not a complete dependency lock or recommendation to
+install outdated packages. Verify the actual worker's dependencies and keep
+behavioral qualification separate.
