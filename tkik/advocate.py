@@ -13,6 +13,14 @@ import sys
 MODEL_ID = "cross-encoder/nli-deberta-v3-small"
 MODEL_REVISION = "fa2804872c3b4bd748f38c0185cc85775361e735"
 WEIGHTS_SHA256 = "ebc79588dd73ccfb6a3f6078519cfbf512c5305384c5ea1845bc71cd32216e86"
+SNAPSHOT_SHA256 = {
+    "config.json": "885d0dceae8fa5c136da9209121ec9eb11160488e840de3bc1f29353674e5712",
+    "added_tokens.json": "a4b6bfe668f2b3cf6f0cd535e98a0663d2d0d4a4a15f13075ad3597d33985a23",
+    "special_tokens_map.json": "ed7c099c988dbb414b18a6980d20cb57b91b7cd119f6f6941eb364b0e892e712",
+    "spm.model": "c679fbf93643d19aab7ee10c0b99e460bdbc02fedf34b92b05af343b4af586fd",
+    "tokenizer.json": "5124ef2ead1a10a717703bc436de7f353da76d6340e4587719b42b1693707964",
+    "tokenizer_config.json": "f3eecd07c370ef0bf7dd3780d3cd68cf9c8b00c267e21a208ddcd8f82bfec1a6",
+}
 LABELS = ("contradiction", "entailment", "neutral")
 
 
@@ -58,10 +66,29 @@ def verify_weights(model_dir):
         raise ValueError("model weights SHA256 does not match pinned artifact")
 
 
+def verify_snapshot(model_dir):
+    """Verify every loader input against the pinned upstream revision."""
+    root = Path(model_dir)
+    expected = dict(SNAPSHOT_SHA256, **{"model.safetensors": WEIGHTS_SHA256})
+    actual = {p.name for p in root.iterdir() if p.name != ".cache" or not p.is_dir()}
+    if actual != set(expected):
+        raise ValueError("snapshot file inventory mismatch")
+    for name, wanted in expected.items():
+        path = root / name
+        if not path.is_file() or path.is_symlink():
+            raise ValueError("snapshot input must be a regular local file")
+        digest = hashlib.sha256()
+        with path.open("rb") as stream:
+            for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+                digest.update(chunk)
+        if digest.hexdigest() != wanted:
+            raise ValueError("snapshot input digest mismatch: " + name)
+
+
 def local_scorer(model_dir, worker_hostname):
     """No download, remote code, pickle weights, or model load at import time."""
     require_worker(worker_hostname)
-    verify_weights(model_dir)
+    verify_snapshot(model_dir)
     import torch
     from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
