@@ -63,6 +63,7 @@ class Case:
     verdict: Optional[str] = None
     rationale: Optional[str] = None
     _frozen_claim_digest: Optional[str] = field(default=None, init=False, repr=False)
+    _cross_examination_waiver_reason: Optional[str] = field(default=None, init=False, repr=False)
 
     def _claim_digest(self):
         """Bind the proposition and its definitions, not any mutable review state."""
@@ -92,6 +93,29 @@ class Case:
         if self._frozen_claim_digest is not None and self._claim_digest() != self._frozen_claim_digest:
             raise ProtocolError("frozen proposition changed; create a new case version")
 
+    @property
+    def cross_examination_waiver_reason(self) -> Optional[str]:
+        """Return the recorded zero-attack waiver reason, if one exists."""
+        return self._cross_examination_waiver_reason
+
+    def waive_cross_examination(self, reason: str) -> None:
+        """Record an explicit zero-attack waiver before any challenge begins.
+
+        The caller must authenticate the person and authority granting this
+        waiver. This in-memory case records the reason; it does not authenticate
+        the caller or create an external authorization receipt.
+        """
+        self._mutable()
+        if not isinstance(reason, str) or not reason.strip():
+            raise ProtocolError("zero-attack waiver reason required")
+        if self.challenges:
+            raise ProtocolError("zero-attack waiver must be recorded before any challenge")
+        if self._cross_examination_waiver_reason is not None:
+            raise ProtocolError("zero-attack waiver already recorded")
+        if self._frozen_claim_digest is None:
+            self._frozen_claim_digest = self._claim_digest()
+        self._cross_examination_waiver_reason = reason.strip()
+
     def add_evidence(self, item: Evidence):
         self._mutable()
         if not all((item.identifier, item.claim, item.source, item.method,
@@ -118,6 +142,8 @@ class Case:
 
     def ask(self, challenge: Challenge):
         self._mutable()
+        if self._cross_examination_waiver_reason is not None:
+            raise ProtocolError("cannot add challenges after a zero-attack waiver")
         if challenge.lens not in LENSES:
             raise ProtocolError("unknown challenge lens")
         if not all((challenge.identifier.strip(), challenge.target.strip(),
@@ -161,6 +187,8 @@ class Case:
             raise ProtocolError("chair may SUSTAIN or REFINE; proposer withdraws explicitly")
         if set(self.reviews) != set(LENSES):
             raise ProtocolError("three peer lenses required")
+        if not self.challenges and self._cross_examination_waiver_reason is None:
+            raise ProtocolError("zero-challenge adjudication requires an explicit waiver")
         if any(c.status in ("OPEN", "UNRESOLVED", "PARTLY_ANSWERED")
                for c in self.challenges):
             raise ProtocolError("unresolved cross-examination")

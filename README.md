@@ -38,9 +38,9 @@ The original `tkik.cli` is a **scripted demonstration only**. No actual Rezon in
 
 ## Determination
 
-The currently implemented `SUSTAIN` gate requires three distinct reviewer identities and a directed, answered/conceded peer-exchange cycle touching every peer as questioner and respondent. `REFINE` and human withdrawal remain available without fabricating an exchange. A different reviewer ID is **not** independent model/host attestation, and written defenses alone are not proof of actual inference. Once the first review is accepted, the proposition and definitions are bound by a digest; material changes require a new case version.
+The currently implemented `SUSTAIN` gate requires three distinct reviewer identities and a directed, answered/conceded peer-exchange cycle touching every peer as questioner and respondent. `REFINE` requires three reviews and no unresolved challenge. If a case has zero challenge records, the caller must record an explicit reason with `Case.waive_cross_examination(reason)` before any challenge begins. That in-memory reason does not authenticate the caller; the integrating application remains responsible for verifying who may authorize the waiver. A zero-attack waiver never bypasses the `SUSTAIN` exchange gate. A different reviewer ID is **not** independent model/host attestation, and written defenses alone are not proof of actual inference. Once the first review or waiver is accepted, the proposition and definitions are bound by a digest; material changes require a new case version.
 
-Partial and unresolved defenses can be continued; a new question cannot replace them until resolution. **Only the proposer may withdraw.**
+Partial and unresolved defenses can be continued; a new question cannot replace them until resolution. A waiver cannot be added after a challenge or combined with a later challenge in the same case. **Only the proposer may withdraw.**
 
 A case may be **SUSTAINED**, **REFINED** or **WITHDRAWN** on documented reasons. SUSTAIN does not mean universal proof. Unresolved or partially answered challenges block normal closure; silent absence never means concession. External reviews need real attributable invocation records before they count as independent sources.
 

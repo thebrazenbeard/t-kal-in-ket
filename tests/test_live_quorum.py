@@ -38,7 +38,7 @@ class LiveQuorumTests(unittest.TestCase):
 
     def test_sustain_cannot_pass_with_three_role_labels_but_no_dialogue(self):
         c = panel()
-        with self.assertRaisesRegex(ProtocolError, "peer cross-examination"):
+        with self.assertRaisesRegex(ProtocolError, "zero-challenge"):
             c.determine("SUSTAIN", "Three role labels agree")
 
     def test_peer_challenge_must_target_another_reviewed_lens(self):
@@ -77,8 +77,11 @@ class LiveQuorumTests(unittest.TestCase):
         c.determine("SUSTAIN", "Three answered peer objections; only within specified scope")
         self.assertEqual(c.verdict, "SUSTAIN")
 
-    def test_refine_and_withdraw_remain_possible_without_synthetic_peer_evidence(self):
+    def test_zero_attack_refine_requires_waiver_and_withdraw_needs_no_peer_evidence(self):
         c = panel()
+        with self.assertRaisesRegex(ProtocolError, "zero-challenge"):
+            c.determine("REFINE", "Insufficient grounds; do not claim qualified dialogue")
+        c.waive_cross_examination("No material attack was formulated for this scoped review")
         c.determine("REFINE", "Insufficient grounds; do not claim qualified dialogue")
         self.assertEqual(c.verdict, "REFINE")
         separate = Case("c", "h", "f", "p")
