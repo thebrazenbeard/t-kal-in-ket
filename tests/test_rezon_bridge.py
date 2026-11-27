@@ -113,8 +113,11 @@ class BridgeTests(unittest.TestCase):
         c = Case("c", "H", "not H", "proposer")
         for lens in ("purist_logic", "pragmatism", "bridge"):
             c.add_review(Review(lens, lens, "finding", "objection"))
-        with self.assertRaises(ProtocolError):
+        with self.assertRaisesRegex(ProtocolError, "zero-challenge"):
             c.determine("SUSTAIN", "all three reviewed but no exchange")
+        c.waive_cross_examination("No material challenge was formulated for this case")
+        with self.assertRaisesRegex(ProtocolError, "peer cross-examination"):
+            c.determine("SUSTAIN", "A waiver cannot replace peer dialogue")
         c.determine("REFINE", "More tests needed")
         self.assertEqual(c.state, "CLOSED")
 
